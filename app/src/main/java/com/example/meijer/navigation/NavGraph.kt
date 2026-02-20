@@ -9,7 +9,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.meijer.ui.screen.ProductDetailScreen
 import com.example.meijer.ui.screen.ProductListScreen
-import com.example.meijer.ui.screen.SplashScreen
 import com.example.meijer.ui.viewmodel.ProductDetailViewModel
 import com.example.meijer.ui.viewmodel.ProductListViewModel
 
@@ -18,7 +17,6 @@ import com.example.meijer.ui.viewmodel.ProductListViewModel
  * Defines all possible destinations in the navigation graph.
  */
 object Routes {
-    const val SPLASH = "splash"
     const val PRODUCT_LIST = "product_list"
     const val PRODUCT_DETAIL = "product_detail/{productId}"
     
@@ -30,7 +28,7 @@ object Routes {
 
 /**
  * Main navigation graph for the app.
- * Handles navigation between Splash, Product List, and Product Detail screens.
+ * Handles navigation between Product List and Product Detail screens.
  * 
  * @param navController NavHostController for managing navigation
  * @param productListViewModel ViewModel for the product list screen
@@ -44,20 +42,8 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.PRODUCT_LIST
     ) {
-        // Splash Screen
-        composable(Routes.SPLASH) {
-            SplashScreen(
-                onNavigateToMain = {
-                    navController.navigate(Routes.PRODUCT_LIST) {
-                        // Remove splash from back stack so user can't go back to it
-                        popUpTo(Routes.SPLASH) { inclusive = true }
-                    }
-                }
-            )
-        }
-        
         // Product List Screen
         composable(Routes.PRODUCT_LIST) {
             ProductListScreen(
