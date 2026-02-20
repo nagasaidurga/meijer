@@ -19,9 +19,13 @@ object CoilImageLoader {
      * @return Configured ImageLoader instance
      */
     fun create(context: Context): ImageLoader {
-        // Create OkHttp client with logging interceptor
+        // Create OkHttp client with logging interceptor (only in debug)
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (android.util.Log.isLoggable("Coil", android.util.Log.DEBUG)) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
         
         val okHttpClient = OkHttpClient.Builder()

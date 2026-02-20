@@ -19,11 +19,15 @@ object RetrofitClient {
     
     /**
      * Creates and configures OkHttpClient with logging interceptor for debugging.
-     * Logs HTTP requests and responses in debug mode.
+     * Logs HTTP requests and responses only in debug mode.
      */
     private fun createOkHttpClient(): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (android.util.Log.isLoggable("Retrofit", android.util.Log.DEBUG)) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
         
         return OkHttpClient.Builder()
