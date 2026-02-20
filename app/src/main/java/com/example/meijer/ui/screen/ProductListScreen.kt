@@ -1,5 +1,6 @@
 package com.example.meijer.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,10 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.meijer.ui.viewmodel.ProductListViewModel
@@ -139,18 +143,23 @@ private fun ProductListItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Product image
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(product.imageUrl)
-                        .crossfade(true)
-                        .build()
-                ),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(product.imageUrl)
+                    .crossfade(true)
+                    .allowHardware(false)
+                    .build(),
                 contentDescription = product.title,
                 modifier = Modifier
                     .size(80.dp)
                     .align(Alignment.CenterVertically),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                error = ColorPainter(Color.LightGray),
+                placeholder = ColorPainter(Color.LightGray),
+                onError = { 
+                    // Log error for debugging
+                    Log.e("ProductList", "Failed to load image: ${product.imageUrl}")
+                }
             )
             
             // Product title and summary

@@ -1,6 +1,7 @@
 package com.example.meijer.ui.screen
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,10 +16,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.meijer.ui.viewmodel.ProductDetailViewModel
@@ -121,18 +125,23 @@ private fun ProductDetailContent(
             .verticalScroll(rememberScrollState())
     ) {
         // Full product image
-        Image(
-            painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(productDetail.imageUrl)
-                    .crossfade(true)
-                    .build()
-            ),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(productDetail.imageUrl)
+                .crossfade(true)
+                .allowHardware(false)
+                .build(),
             contentDescription = productDetail.title,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            error = ColorPainter(Color.LightGray),
+            placeholder = ColorPainter(Color.LightGray),
+            onError = { 
+                // Log error for debugging
+                Log.e("ProductDetail", "Failed to load image: ${productDetail.imageUrl}")
+            }
         )
         
         // Product information section
