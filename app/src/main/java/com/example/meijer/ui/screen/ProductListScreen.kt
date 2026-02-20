@@ -1,31 +1,33 @@
 package com.example.meijer.ui.screen
 
 import android.util.Log
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.meijer.ui.viewmodel.ProductListViewModel
 
 /**
  * Composable screen for displaying the list of products.
- * Shows a scrollable list of products with image, title, and summary.
+ * Clean, elegant design with refined spacing and visual hierarchy.
  * 
  * @param viewModel ViewModel that manages the product list state
  * @param onProductClick Callback function invoked when a product is clicked
@@ -41,10 +43,17 @@ fun ProductListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Product List") },
+                title = { 
+                    Text(
+                        text = "Products",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    ) 
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -52,17 +61,17 @@ fun ProductListScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
             when {
-                // Loading state
                 uiState.isLoading -> {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 
-                // Error state
                 uiState.error != null -> {
                     ErrorView(
                         errorMessage = uiState.error!!,
@@ -71,7 +80,6 @@ fun ProductListScreen(
                     )
                 }
                 
-                // Success state - display product list
                 uiState.products != null -> {
                     if (uiState.products!!.isEmpty()) {
                         EmptyStateView(
@@ -91,10 +99,7 @@ fun ProductListScreen(
 }
 
 /**
- * Composable that displays the list of products in a LazyColumn.
- * 
- * @param products List of products to display
- * @param onProductClick Callback function invoked when a product is clicked
+ * Displays the list of products in a clean, elegant layout.
  */
 @Composable
 private fun ProductListContent(
@@ -103,8 +108,8 @@ private fun ProductListContent(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(
             items = products,
@@ -119,11 +124,7 @@ private fun ProductListContent(
 }
 
 /**
- * Composable that displays a single product item in the list.
- * Shows product image, title, and summary.
- * 
- * @param product Product data to display
- * @param onClick Callback function invoked when the item is clicked
+ * Elegant product list item with refined design.
  */
 @Composable
 private fun ProductListItem(
@@ -134,53 +135,63 @@ private fun ProductListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Product image
+            // Product image with rounded corners
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(product.imageUrl)
                     .crossfade(true)
-                    .allowHardware(false)
                     .build(),
                 contentDescription = product.title,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .align(Alignment.CenterVertically),
                 contentScale = ContentScale.Crop,
-                error = ColorPainter(Color.LightGray),
-                placeholder = ColorPainter(Color.LightGray),
+                error = ColorPainter(Color(0xFFF5F5F5)),
+                placeholder = ColorPainter(Color(0xFFF5F5F5)),
                 onError = { 
-                    // Log error for debugging
                     Log.e("ProductList", "Failed to load image: ${product.imageUrl}")
                 }
             )
             
-            // Product title and summary
+            // Product information
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .align(Alignment.CenterVertically)
+                    .align(Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = product.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                
                 Text(
                     text = product.summary,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
                 )
             }
         }
@@ -188,11 +199,7 @@ private fun ProductListItem(
 }
 
 /**
- * Composable that displays an error message with a retry button.
- * 
- * @param errorMessage The error message to display
- * @param onRetry Callback function invoked when retry button is clicked
- * @param modifier Modifier for the composable
+ * Clean error view with centered content.
  */
 @Composable
 private fun ErrorView(
@@ -201,33 +208,38 @@ private fun ErrorView(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Error",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.error
+            text = "Unable to load products",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = errorMessage,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
-            Text("Retry")
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Try Again", style = MaterialTheme.typography.labelLarge)
         }
     }
 }
 
 /**
- * Composable that displays an empty state message.
- * 
- * @param message The message to display
- * @param modifier Modifier for the composable
+ * Simple empty state view.
  */
 @Composable
 private fun EmptyStateView(
@@ -245,4 +257,3 @@ private fun EmptyStateView(
         )
     }
 }
-
