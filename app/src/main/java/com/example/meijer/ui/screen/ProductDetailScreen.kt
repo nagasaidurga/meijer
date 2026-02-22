@@ -46,7 +46,7 @@ fun ProductDetailScreen(
     val context = LocalContext.current
     
     LaunchedEffect(productId) {
-        viewModel.loadProductDetail(productId, context)
+        viewModel.loadProductDetail(productId)
     }
     
     Scaffold(
@@ -93,7 +93,7 @@ fun ProductDetailScreen(
                 uiState.error != null -> {
                     ErrorView(
                         errorMessage = uiState.error!!,
-                        onRetry = { viewModel.retry(productId, context) },
+                        onRetry = { viewModel.retry(productId) },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -101,7 +101,7 @@ fun ProductDetailScreen(
                 uiState.productDetail != null -> {
                     ProductDetailContent(
                         productDetail = uiState.productDetail!!,
-                        cityName = uiState.cityName,
+                        cityName = uiState.cityName ?: "Unknown",
                         onShareClick = {
                             shareProduct(context, viewModel.getShareableText())
                         }

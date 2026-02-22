@@ -1,6 +1,6 @@
 package com.example.meijer.data.repository
 
-import com.example.meijer.data.api.RetrofitClient
+import com.example.meijer.data.api.ProductApiService
 import com.example.meijer.data.model.Product
 import com.example.meijer.data.model.ProductDetail
 
@@ -13,9 +13,7 @@ import com.example.meijer.data.model.ProductDetail
  * - Fetching product details from API
  * - Error handling and data transformation
  */
-class ProductRepository {
-    
-    private val apiService = RetrofitClient.productApiService
+class ProductRepository(private val apiService: ProductApiService) {
     
     /**
      * Fetches the list of all products from the API.
@@ -54,4 +52,3 @@ class ProductRepository {
         }
     }
 }
-

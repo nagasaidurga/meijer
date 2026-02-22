@@ -13,53 +13,37 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel for the Product List screen.
  * Manages the state and business logic for displaying the list of products.
- * 
- * Responsibilities:
- * - Fetching product list from repository
- * - Managing loading and error states
- * - Providing UI state to the Compose screen
  */
 class ProductListViewModel(
-    private val repository: ProductRepository = ProductRepository()
+    private val repository: ProductRepository
 ) : ViewModel() {
-    
-    // Mutable state flow for internal state management
-    private val _uiState = MutableStateFlow(ProductListUiState(isLoading = true))
-    
-    // Public read-only state flow exposed to UI
+
+    private val _uiState = MutableStateFlow(ProductListUiState())
     val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
-    
-    init {
-        // Load products when ViewModel is created
+
+    /**
+     * Called when the screen is first displayed.
+     */
+    fun onStart() {
         loadProducts()
     }
-    
+
     /**
      * Fetches the list of products from the repository.
-     * Updates the UI state based on the result (loading, success, or error).
      */
-    fun loadProducts() {
+    private fun loadProducts() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+            _uiState.value = ProductListUiState(isLoading = true)
             repository.getProducts()
-                .onSuccess { products ->
-                    _uiState.value = ProductListUiState(
-                        isLoading = false,
-                        products = products,
-                        error = null
-                    )
+                .onSuccess {
+                    _uiState.value = ProductListUiState(products = it)
                 }
-                .onFailure { exception ->
-                    _uiState.value = ProductListUiState(
-                        isLoading = false,
-                        products = null,
-                        error = exception.message ?: "Unknown error occurred"
-                    )
+                .onFailure {
+                    _uiState.value = ProductListUiState(error = it.message)
                 }
         }
     }
-    
+
     /**
      * Retry loading products in case of an error.
      */
@@ -67,4 +51,3 @@ class ProductListViewModel(
         loadProducts()
     }
 }
-

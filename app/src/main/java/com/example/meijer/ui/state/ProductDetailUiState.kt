@@ -15,6 +15,6 @@ data class ProductDetailUiState(
     val isLoading: Boolean = false,
     val productDetail: ProductDetail? = null,
     val error: String? = null,
-    val cityName: String = "Unknown"
+    val cityName: String? = null
 )
 
